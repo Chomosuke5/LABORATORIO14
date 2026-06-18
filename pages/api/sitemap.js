@@ -1,18 +1,19 @@
 import { getBlogPosts } from "../../lib/db";
 
-const BASE_URL = "https://mi-sitio.com";
-
 export default async function handler(req, res) {
+  // Obtener el host dinámicamente de la petición (ej. localhost:3000 o laboratorio14-nu7o.onrender.com)
+  const host = req.headers.host || "localhost:3000";
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+  const BASE_URL = `${protocol}://${host}`;
+
   // Obtener los artículos dinámicos de la base de datos o CMS
   const posts = await getBlogPosts();
   
   // Páginas estáticas del sitio
-  const staticUrls = ["/", "/blog", "/contacto"];
+  const staticUrls = ["", "/blog", "/contacto"]; // Quitamos el primer / para evitar doble barra si allUrls ya lo mapea
   
-  // Páginas dinámicas basadas en los slugs de la base de datos
+  // Combinar todas las URLs asegurando el formato correcto
   const dynamicUrls = posts.map((post) => `/blog/${post.slug}`);
-  
-  // Combinar todas las URLs
   const allUrls = [...staticUrls, ...dynamicUrls];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
